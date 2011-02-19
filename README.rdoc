@@ -1,0 +1,46 @@
+= Munin-Ruby
+
+Munin-ruby is a client library to Munin node client
+
+= Installation
+
+This gem is not published yet
+
+  gem install munin-ruby
+
+= Usage
+
+  require 'munin-ruby'
+  
+  node = Munin::Node.new('hostname')
+  node.version    # => shows munin-node version
+  node.services   # => shows a list of available services
+  
+Get service information
+
+  node.service('memory')
+  
+Output:
+
+  {
+    "apps"=>"317657088",
+    "buffers"=>"126906368",
+    "vmalloc_used"=>"1687552",
+    "page_tables"=>"3096576",
+    "swap_cache"=>"114688",
+    "inactive"=>"785813504",
+    "slab"=>"78376960",
+    "free"=>"356311040",
+    "committed"=>"481320960",
+    "swap"=>"516096",
+    "cached"=>"1216335872",
+    "active"=>"865218560",
+    "mapped"=>"15654912"
+  }
+  
+Get all services information
+
+  node.services.each do |s|
+    stat = node.service(s)
+  end
+  
