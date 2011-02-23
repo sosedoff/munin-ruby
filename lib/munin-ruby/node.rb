@@ -6,15 +6,25 @@ module Munin
     
     # Setup a new node
     # host - Server hostname or IP address
-    # port - Server port (default to 4949)
-    # list - List of services to request. Empty array if need to fetch all
-    def initialize(host, port=4949, list=[])
+    # opts - Options
+    #   :port => Node server port (default to 4949)
+    #   :fetch => String or Array of service names ONLY to fetch
+    def initialize(host, opts={})
       @host          = host
-      @port          = port
+      @port          = opts[:port] || 4949
       @stats         = {}
       @services      = []
       @version       = ''
-      @only_services = list || []
+      @only_services = opts[:fetch] || []
+
+      if @only_services.kind_of?(Array)
+        @only_services.uniq!
+      elsif @only_services.kind_of?(String)
+        @only_services = @only_services.scan(/[a-z\d\-\_]{1,}/i).uniq
+      else
+        @only_services = []
+      end
+
       run
     end
     

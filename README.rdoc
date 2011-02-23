@@ -11,8 +11,17 @@ NOTE: This gem is not published yet
 = Usage
 
   require 'munin-ruby'
-  
-  node = Munin::Node.new('hostname', 4949)
+
+  # connect to 'hostname' on 4949 port and fetch all available services
+  node = Munin::Node.new('hostname')
+
+  # connect to 'hostname' on specified port and fetch all available services
+  node = Munin::Node.new('hostname', :port => YOUR_PORT)
+
+  # connect to 'hostname' and fetch only specified services
+  # node: non-existent services will be skipped with no error triggered
+  # :fetch might be array or string
+  node = Munin::Node.new('hostname', :fetch => 'cpu memory nginx')
   
 Get munin-node version:
 
@@ -26,7 +35,7 @@ Get fetch timestamp:
   
   # => Sat Feb 19 15:29:51 -0600 2011
   
-List all available services:
+List list of fetched services:
 
   node.services
   
