@@ -48,8 +48,10 @@ module Munin
         fetch_version
         fetch_services
         @socket.close
-      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => ex
+      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET => ex
         raise Munin::SessionError, ex.message
+      rescue EOFError
+        raise Munin::AccessDenied
       end
     end
     

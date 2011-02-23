@@ -22,6 +22,8 @@ NOTE: This gem is not published yet
   # node: non-existent services will be skipped with no error triggered
   # :fetch might be array or string
   node = Munin::Node.new('hostname', :fetch => 'cpu memory nginx')
+
+  # error Munin::AccessDenied will be triggered if your IP is not present in allowed ip's list
   
 Get munin-node version:
 
