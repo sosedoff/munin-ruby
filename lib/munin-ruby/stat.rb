@@ -14,7 +14,7 @@ module Munin
     end
     
     def to_s
-      @name
+      "Munin::Stat<#{@name}>"
     end
   end
 end
