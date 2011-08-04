@@ -32,17 +32,30 @@ module Munin
       else
         @only_services = []
       end
-
+      
       run
     end
     
-    # Get service stats
+    # Returns a set of parameters for the service
+    #
+    # name - Service name
+    #
+    # @return [Munin::Stat]
+    #
     def service(name)
-      if @stats.key?(name)
+      if has_service?(name)
         @stats[name]
       else
         raise Munin::NoSuchService, "Service with name #{name} does not exist."
       end
+    end
+    
+    # Returns true if node has the service
+    #
+    # name - Service name
+    #
+    def has_service?(name)
+      @stats.key?(name)
     end
     
     private
