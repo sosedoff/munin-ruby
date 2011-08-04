@@ -2,19 +2,20 @@ module Munin
   class Stat
     attr_reader :name, :params
     
-    def initialize(name, rows=[])
+    # Initialize a new Munin::Stat object
+    #
+    # name - Attribute name
+    # rows - Array of parameters
+    #
+    def initialize(name, rows=[])    
       @name = name
       @params = {}
       unless rows.empty?
         rows.each do |r|
-          name = r.first.scan(/^([a-z\d\_\-]{1,}).value/i).to_s
-          @params[name] = r.last
+          key = r.first.split('.value').first
+          @params[key] = r.last
         end
       end
-    end
-    
-    def to_s
-      "Munin::Stat<#{@name}>"
     end
   end
 end

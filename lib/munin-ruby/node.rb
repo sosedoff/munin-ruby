@@ -1,14 +1,22 @@
+require 'socket'
+
 module Munin
+  class SessionError  < StandardError ; end
+  class NoSuchService < StandardError ; end
+  class AccessDenied  < StandardError ; end
+  
   class Node
     attr_reader :host, :port
     attr_reader :version, :services
     attr_reader :timestamp
     
-    # Setup a new node
+    # Initialize a new Munin::Node object
+    #
     # host - Server hostname or IP address
-    # opts - Options
-    #   :port => Node server port (default to 4949)
-    #   :fetch => String or Array of service names ONLY to fetch
+    # opts - Additional options.
+    #        :port - Node server port (default to 4949)
+    #        :fetch - String or Array of service names ONLY to fetch
+    #
     def initialize(host, opts={})
       @host          = host
       @port          = opts[:port] || 4949

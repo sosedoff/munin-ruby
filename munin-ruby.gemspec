@@ -1,21 +1,17 @@
-require 'lib/munin-ruby/version'
+# -*- encoding: utf-8 -*-
+require File.expand_path('../lib/munin/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "munin-ruby"
   s.version     = Munin::VERSION
-  s.date        = Time.now.strftime("%Y-%m-%d")
-  s.description = "munin-node ruby client"
+  s.description = "Munin Node client"
   s.summary     = "Ruby client library to communicate with munin-node servers"
   s.authors     = ["Dan Sosedoff"]
   s.email       = "dan.sosedoff@gmail.com"
   s.homepage    = "http://github.com/sosedoff/munin-ruby"
-
-  s.files = %w[
-    README.rdoc
-    lib/munin-ruby.rb
-    lib/munin-ruby/version.rb
-    lib/munin-ruby/node.rb
-    lib/munin-ruby/stat.rb
-    lib/munin-ruby/munin-ruby.rb
-  ]
+  
+  gem.files         = `git ls-files`.split("\n")
+  gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  gem.executables   = `git ls-files -- bin/*`.split("\n").map{|f| File.basename(f)}
+  gem.require_paths = ['lib']
 end
