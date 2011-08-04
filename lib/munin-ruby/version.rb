@@ -1,3 +1,5 @@
 module Munin
-  VERSION = '0.1.0'
+  unless defined?(::Munin::VERSION)
+    VERSION = '0.1.0'
+  end
 end
