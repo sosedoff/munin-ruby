@@ -58,6 +58,14 @@ module Munin
       @stats.key?(name)
     end
     
+    # Fetch multiple services at once
+    #
+    # service_names - Array of service names to fetch
+    #
+    def snapshot(service_names=[])
+      service_names.uniq.map { |n| service(n) }
+    end
+    
     private
     
     # Fetch node information and stats
