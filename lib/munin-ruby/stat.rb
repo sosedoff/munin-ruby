@@ -20,5 +20,11 @@ module Munin
         end
       end
     end
+    
+    # Hash representation of the mertic
+    #
+    def to_hash
+      {:name => self.name, :params => self.params} 
+    end
   end
 end
