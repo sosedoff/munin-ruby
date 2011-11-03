@@ -1,0 +1,57 @@
+module Munin
+  module Parser
+    private
+    
+    # Parse 'config' request
+    #
+    def parse_config(data)
+      config = {:graph => {}, :metrics => {}}
+      data.each do |l|
+        if l =~ /^graph_/
+          key_name, value = l.scan(/^graph_([\w]+)\s(.*)/).flatten
+          config[:graph][key_name] = value
+        elsif l =~ /^[a-z]+\./
+          matches = l.scan(/^([a-z\d\-\_]+)\.([a-z\d\-\_]+)\s(.*)/).flatten
+          config[:metrics][matches[0]] ||= {}
+          config[:metrics][matches[0]][matches[1]] = matches[2]
+        end
+      end
+      
+      # Now, lets process the args hash
+      if config[:graph].key?('args')
+        args = {}
+        config[:graph]['args'].scan(/--([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
+          args[arg.first] = arg.last
+        end
+        config[:graph]['args'] = args
+      end
+      
+      config
+    end
+    
+    # Parse 'fetch' request
+    #
+    def parse_fetch(data)
+      process_data(data)
+    end
+      
+    def process_data(lines)  
+      data = {}
+      lines.each do |line|
+        line = line.split
+        key = line.first.split('.value').first
+        data[key] = line.last
+      end
+      data
+    end
+    
+    def parse_error(lines)
+      if lines.size == 1
+        case lines.first
+          when '# Unknown service' then raise UnknownService
+          when '# Bad exit'        then raise BadExit
+        end
+      end
+    end
+  end
+end
