@@ -2,6 +2,18 @@ module Munin
   module Parser
     private
     
+    # Process response
+    #
+    def process_data(lines)  
+      data = {}
+      lines.each do |line|
+        line = line.split
+        key = line.first.split('.value').first
+        data[key] = line.last
+      end
+      data
+    end
+    
     # Parse 'config' request
     #
     def parse_config(data)
@@ -19,11 +31,7 @@ module Munin
       
       # Now, lets process the args hash
       if config[:graph].key?('args')
-        args = {}
-        config[:graph]['args'].scan(/--([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
-          args[arg.first] = arg.last
-        end
-        config[:graph]['args'] = args
+        config[:graph]['args'] = parse_config_args(config[:graph]['args'])   
       end
       
       config
@@ -34,17 +42,9 @@ module Munin
     def parse_fetch(data)
       process_data(data)
     end
-      
-    def process_data(lines)  
-      data = {}
-      lines.each do |line|
-        line = line.split
-        key = line.first.split('.value').first
-        data[key] = line.last
-      end
-      data
-    end
     
+    # Detect error from output
+    #
     def parse_error(lines)
       if lines.size == 1
         case lines.first
@@ -52,6 +52,16 @@ module Munin
           when '# Bad exit'        then raise BadExit
         end
       end
+    end
+    
+    # Parse configuration arguments
+    #
+    def parse_config_args(args)
+      result = {}
+      args.scan(/--([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
+        result[arg.first] = arg.last
+      end
+      result
     end
   end
 end
