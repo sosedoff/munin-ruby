@@ -34,12 +34,22 @@ module Munin
     
     # Get a configuration information for service
     #
-    # service - Name of the service
+    # services - Name of the service, or list of service names
     #
-    def config(service)
-      connection.send_data("config #{service}")
-      lines = connection.read_packet
-      parse_config(lines)
+    def config(services)
+      return_single = services.kind_of?(String)
+      results = []
+      names = [services].flatten
+      names.each do |service|
+        begin
+          connection.send_data("config #{service}")
+          lines = connection.read_packet
+          results << parse_config(lines)
+        rescue UnknownService, BadExit
+          # TODO
+        end
+      end
+      return_single && results.size == 1 ? results.first : results
     end
     
     # Get all service metrics values
@@ -59,7 +69,6 @@ module Munin
           # TODO
         end
       end
-      
       return_single && results.size == 1 ? results.first : results
     end
   end
