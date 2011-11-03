@@ -13,6 +13,18 @@ module Munin
       @connection = Munin::Connection.new(host, port)
     end
     
+    # Open service connection
+    #
+    def connect
+      connection.open
+    end
+    
+    # Close server connection
+    #
+    def disconnect
+      connection.close
+    end
+    
     # Get a node version
     #
     def version

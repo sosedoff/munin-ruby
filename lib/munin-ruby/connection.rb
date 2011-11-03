@@ -26,7 +26,7 @@ module Munin
     
     # Establish connection to the server
     #
-    def connect
+    def open
       begin
         @socket = TCPSocket.new(@host, @port)
         @socket.sync = true
@@ -41,13 +41,16 @@ module Munin
     # Close connection
     #
     def close
-      @socket.close unless @socket.nil?
+      unless connected?
+        @socket.close
+        @connected = false
+      end
     end
     
     # Send a string of data followed by a newline symbol
     #
     def send_data(str)
-      connect unless connected?
+      open unless connected?
       @socket.puts("#{str.strip}\n")
     end
     
