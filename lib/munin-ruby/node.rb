@@ -44,12 +44,23 @@ module Munin
     
     # Get all service metrics values
     #
-    # service - Name of the service
+    # services - Name of the service, or list of service names
     #
-    def fetch(service)
-      connection.send_data("fetch #{service}")
-      lines = connection.read_packet
-      parse_fetch(lines)
+    def fetch(services)
+      return_single = services.kind_of?(String)
+      results = []
+      names = [services].flatten
+      names.each do |service|
+        begin
+          connection.send_data("fetch #{service}")
+          lines = connection.read_packet
+          results << parse_fetch(lines)
+        rescue UnknownService, BadExit
+          # TODO
+        end
+      end
+      
+      return_single && results.size == 1 ? results.first : results
     end
   end
 end
