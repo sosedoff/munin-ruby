@@ -31,6 +31,9 @@ module Munin
         @socket = TCPSocket.new(@host, @port)
         @socket.sync = true
         welcome = @socket.gets
+        unless welcome =~ /^# munin node at/
+          raise Munin::AccessDenied
+        end
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET => ex
         raise Munin::ConnectionError, ex.message
       rescue EOFError
