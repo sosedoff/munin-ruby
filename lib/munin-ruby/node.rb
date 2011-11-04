@@ -6,11 +6,13 @@ module Munin
     
     # Initialize a new Node instance
     #
-    # host - Server host
-    # port - Server port
+    # host      - Server host
+    # port      - Server port
+    # reconnect - Reconnect if connection was closed (default: true)
     #
-    def initialize(host='127.0.0.1', port=4949)
-      @connection = Munin::Connection.new(host, port)
+    
+    def initialize(host='127.0.0.1', port=4949, reconnect=true)
+      @connection = Munin::Connection.new(host, port, reconnect)
     end
     
     # Open service connection
@@ -21,8 +23,8 @@ module Munin
     
     # Close server connection
     #
-    def disconnect
-      connection.close
+    def disconnect(reconnect=true)
+      connection.close(reconnect)
     end
     
     # Get a node version

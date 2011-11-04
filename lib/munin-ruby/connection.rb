@@ -11,11 +11,12 @@ module Munin
     # host - Server host (default: 127.0.0.1)
     # port - Server port (default: 4949)
     #
-    def initialize(host='127.0.0.1', port=4949)
+    def initialize(host='127.0.0.1', port=4949, reconnect=true)
       @host      = host
       @port      = port
       @socket    = nil
       @connected = false
+      @reconnect = reconnect
     end
     
     # Returns true if socket is connected
@@ -34,45 +35,64 @@ module Munin
         unless welcome =~ /^# munin node at/
           raise Munin::AccessDenied
         end
+        @connected = true
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET => ex
         raise Munin::ConnectionError, ex.message
       rescue EOFError
         raise Munin::AccessDenied
+      rescue Exception => ex
+        raise Munin::ConnectionError, ex.message
       end
     end
     
     # Close connection
     #
-    def close
-      unless connected?
-        @socket.close
+    def close(reconnect=true)
+      if connected?
+        @socket.flush
+        @socket.shutdown
         @connected = false
+        @reconnect = reconnect
       end
     end
     
     # Send a string of data followed by a newline symbol
     #
     def send_data(str)
-      open unless connected?
+      if !connected?
+        if !@socket.nil? && @reconnect == false
+          raise Munin::ConnectionError, "Not connected."
+        else
+          open
+        end
+      end
       @socket.puts("#{str.strip}\n")
     end
     
     # Reads a single line from socket
     #
     def read_line
-      @socket.gets.strip
+      begin
+        @socket.gets.to_s.strip
+      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => ex
+        raise Munin::ConnectionError, ex.message
+      end
     end
     
     # Reads a packet of data until '.' reached
     #
     def read_packet
-      lines = []
-      while(str = @socket.readline) do
-        break if str.strip == '.'
-        lines << str.strip
+      begin
+        lines = []
+        while(str = @socket.readline.to_s) do
+          break if str.strip == '.'
+          lines << str.strip
+        end
+        parse_error(lines)
+        lines
+      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => ex
+        raise Munin::ConnectionError, ex.message
       end
-      parse_error(lines)
-      lines
     end
   end
 end
