@@ -1,6 +1,7 @@
 module Munin
   class Node
     include Munin::Parser
+    include Munin::Cache
     
     attr_reader :connection
     
@@ -30,20 +31,24 @@ module Munin
     # Get a node version
     #
     def version
-      connection.send_data("version")
-      str = connection.read_line
-      if str =~  /^munins node on/
-        str.split.last
-      else
-        raise InvalidResponse
+      cache 'version' do
+        connection.send_data("version")
+        str = connection.read_line
+        if str =~  /^munins node on/
+          str.split.last
+        else
+          raise InvalidResponse
+        end
       end
     end
     
     # Get a list of all available metrics
     #
     def list
-      connection.send_data("list")
-      connection.read_line.split
+      cache 'list' do
+        connection.send_data("list")
+        connection.read_line.split
+      end
     end
     
     # Get a configuration information for service
