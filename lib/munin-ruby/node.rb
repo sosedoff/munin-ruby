@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 module Munin
   class Node
     include Munin::Parser
@@ -68,16 +70,22 @@ module Munin
         raise ArgumentError, "Service(s) argument required"
       end
       
-      names.each do |service|
-        begin
-          connection.send_data("config #{service}")
-          lines = connection.read_packet
-          results << parse_config(lines)
-        rescue UnknownService, BadExit
-          # TODO
+      key = 'config_' + Digest::MD5.hexdigest(names.to_s)
+      
+      cache(key) do
+        puts key
+        
+        names.each do |service|
+          begin
+            connection.send_data("config #{service}")
+            lines = connection.read_packet
+            results << parse_config(lines)
+          rescue UnknownService, BadExit
+            # TODO
+          end
         end
+        return_single && results.size == 1 ? results.first : results
       end
-      return_single && results.size == 1 ? results.first : results
     end
     
     # Get all service metrics values
