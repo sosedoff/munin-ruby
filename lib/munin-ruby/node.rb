@@ -56,9 +56,18 @@ module Munin
     # services - Name of the service, or list of service names
     #
     def config(services)
+      unless [String, Array].include?(services.class)
+        raise ArgumentError, "Service(s) argument required"
+      end
+      
       return_single = services.kind_of?(String)
-      results = []
-      names = [services].flatten
+      results       = []
+      names         = [services].flatten.uniq
+      
+      if names.empty?
+        raise ArgumentError, "Service(s) argument required"
+      end
+      
       names.each do |service|
         begin
           connection.send_data("config #{service}")
