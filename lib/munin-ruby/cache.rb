@@ -10,6 +10,13 @@ module Munin
       data
     end
     
+    def flush_cache
+      instance_variables.select { |l| l =~ /^@cache_/ }.each do |var|
+        remove_instance_variable(var)
+      end
+      true
+    end
+    
     protected
     
     def cache_key(key)

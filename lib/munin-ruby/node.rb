@@ -73,8 +73,6 @@ module Munin
       key = 'config_' + Digest::MD5.hexdigest(names.to_s)
       
       cache(key) do
-        puts key
-        
         names.each do |service|
           begin
             connection.send_data("config #{service}")
