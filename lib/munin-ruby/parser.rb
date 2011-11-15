@@ -1,14 +1,12 @@
 module Munin
-  module Parser
-    private
-    
+  module Parser  
     # Parse a version request
     #
     def parse_version(line)
       if line =~  /^munins node on/
         line.split.last
       else
-        raise Munin::InvalidResponse
+        raise Munin::InvalidResponse, "Invalid version response"
       end
     end
     
@@ -27,21 +25,21 @@ module Munin
     # Parse 'config' request
     #
     def parse_config(data)
-      config = {:graph => {}, :metrics => {}}
+      config = {'graph' => {}, 'metrics' => {}}
       data.each do |l|
         if l =~ /^graph_/
           key_name, value = l.scan(/^graph_([\w]+)\s(.*)/).flatten
-          config[:graph][key_name] = value
+          config['graph'][key_name] = value
         elsif l =~ /^[a-z]+\./
           matches = l.scan(/^([a-z\d\-\_]+)\.([a-z\d\-\_]+)\s(.*)/).flatten
-          config[:metrics][matches[0]] ||= {}
-          config[:metrics][matches[0]][matches[1]] = matches[2]
+          config['metrics'][matches[0]] ||= {}
+          config['metrics'][matches[0]][matches[1]] = matches[2]
         end
       end
       
       # Now, lets process the args hash
-      if config[:graph].key?('args')
-        config[:graph]['args'] = parse_config_args(config[:graph]['args'])   
+      if config['graph'].key?('args')
+        config['graph']['args'] = parse_config_args(config['graph']['args'])   
       end
       
       config
@@ -71,7 +69,7 @@ module Munin
       args.scan(/--([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
         result[arg.first] = arg.last
       end
-      result
+      {'raw' => args, 'parsed' => result}
     end
   end
 end

@@ -1,0 +1,1 @@
+munins node on hostname version: 1.4.4

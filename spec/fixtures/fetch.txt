@@ -1,0 +1,15 @@
+fetch memory
+slab.value 710025216
+swap_cache.value 823296
+page_tables.value 27803648
+vmalloc_used.value 9228288
+apps.value 1219354624
+free.value 204206080
+buffers.value 2046074880
+cached.value 11967377408
+swap.value 2961408
+committed.value 2358927360
+mapped.value 1625862144
+active.value 5164363776
+inactive.value 10039930880
+.
