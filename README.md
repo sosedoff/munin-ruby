@@ -70,16 +70,18 @@ config = node.config('cpu')
 This will produce the following result:
 
 ```
-{:graph=>
+{"graph"=>
   {"title"=>"CPU usage",
    "order"=>"system user nice idle iowait irq softirq",
-   "args"=>{"base"=>"1000", "lower-limit"=>"0", "upper-limit"=>"400"},
+   "args"=>
+    {"raw"=>"--base 1000 -r --lower-limit 0 --upper-limit 400",
+     "parsed"=>{"base"=>"1000", "lower-limit"=>"0", "upper-limit"=>"400"}},
    "vlabel"=>"%",
    "scale"=>"no",
    "info"=>"This graph shows how CPU time is spent.",
    "category"=>"system",
    "period"=>"second"},
- :metrics=>
+ "metrics"=>
   {"system"=>
     {"label"=>"system",
      "draw"=>"AREA",
@@ -131,7 +133,6 @@ This will produce the following result:
      "info"=>
       "The time that a virtual CPU had runnable tasks, but the virtual CPU itself was not running"}}}
 ```
-
 
 #### Fetch a single service
 
