@@ -35,12 +35,7 @@ module Munin
     def version
       cache 'version' do
         connection.send_data("version")
-        str = connection.read_line
-        if str =~  /^munins node on/
-          str.split.last
-        else
-          raise InvalidResponse
-        end
+        parse_version(connection.read_line)
       end
     end
     

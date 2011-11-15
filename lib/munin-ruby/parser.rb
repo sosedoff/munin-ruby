@@ -2,6 +2,16 @@ module Munin
   module Parser
     private
     
+    # Parse a version request
+    #
+    def parse_version(line)
+      if line =~  /^munins node on/
+        line.split.last
+      else
+        raise Munin::InvalidResponse
+      end
+    end
+    
     # Process response
     #
     def process_data(lines)  
