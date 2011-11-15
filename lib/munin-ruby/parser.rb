@@ -66,7 +66,7 @@ module Munin
     #
     def parse_config_args(args)
       result = {}
-      args.scan(/--([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
+      args.scan(/--?([a-z\-\_]+)\s([\d]+)\s?/).each do |arg|
         result[arg.first] = arg.last
       end
       {'raw' => args, 'parsed' => result}
