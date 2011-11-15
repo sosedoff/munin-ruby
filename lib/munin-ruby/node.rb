@@ -57,8 +57,7 @@ module Munin
         raise ArgumentError, "Service(s) argument required"
       end
       
-      return_single = services.kind_of?(String)
-      results       = []
+      results       = {}
       names         = [services].flatten.uniq
       
       if names.empty?
@@ -72,12 +71,12 @@ module Munin
           begin
             connection.send_data("config #{service}")
             lines = connection.read_packet
-            results << parse_config(lines)
+            results[service] = parse_config(lines)
           rescue UnknownService, BadExit
             # TODO
           end
         end
-        return_single && results.size == 1 ? results.first : results
+        results
       end
     end
     
@@ -86,19 +85,27 @@ module Munin
     # services - Name of the service, or list of service names
     #
     def fetch(services)
-      return_single = services.kind_of?(String)
-      results = []
-      names = [services].flatten
+      unless [String, Array].include?(services.class)
+        raise ArgumentError, "Service(s) argument required"
+      end
+      
+      results = {}
+      names   = [services].flatten
+      
+      if names.empty?
+        raise ArgumentError, "Service(s) argument required"
+      end
+      
       names.each do |service|
         begin
           connection.send_data("fetch #{service}")
           lines = connection.read_packet
-          results << parse_fetch(lines)
+          results[service] =  parse_fetch(lines)
         rescue UnknownService, BadExit
           # TODO
         end
       end
-      return_single && results.size == 1 ? results.first : results
+      results
     end
   end
 end
