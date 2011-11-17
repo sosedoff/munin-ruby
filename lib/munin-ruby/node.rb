@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-ºrequire 'digest/md5'
+require 'digest/md5'
 
 module Munin
   class Node
