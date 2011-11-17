@@ -1,4 +1,5 @@
-require 'digest/md5'
+# -*- coding: utf-8 -*-
+ºrequire 'digest/md5'
 
 module Munin
   class Node
@@ -36,6 +37,15 @@ module Munin
       cache 'version' do
         connection.send_data("version")
         parse_version(connection.read_line)
+      end
+    end
+
+    # Get a list of all available nodes
+    #
+    def nodes
+      cache 'nodes' do 
+        connection.send_data("nodes")
+        connection.read_line.split
       end
     end
     
