@@ -50,9 +50,9 @@ module Munin
     
     # Get a list of all available metrics
     #
-    def list
+    def list(node = "")
       cache 'list' do
-        connection.send_data("list")
+        connection.send_data("list #{node}")
         connection.read_line.split
       end
     end
