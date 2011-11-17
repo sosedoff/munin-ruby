@@ -53,10 +53,28 @@ module Munin
     def list(node = "")
       cache 'list' do
         connection.send_data("list #{node}")
-        connection.read_line.split
+        if line = connection.read_line != "."
+          line.split
+        else
+          connection.read_line.split
+        end
       end
     end
     
+    # Get the raw output of the config for a givens erver
+    #
+    def raw_config(service)
+      cache(service) do
+        begin
+          connection.send_data("config #{service}")
+          lines = connection.read_packet.join("\n")
+        rescue UnknownService, BadExit
+          # TODO
+        end
+        lines
+      end      
+    end
+
     # Get a configuration information for service
     #
     # services - Name of the service, or list of service names
