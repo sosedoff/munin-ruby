@@ -60,26 +60,12 @@ module Munin
         end
       end
     end
-    
-    # Get the raw output of the config for a givens erver
-    #
-    def raw_config(service)
-      cache(service) do
-        begin
-          connection.send_data("config #{service}")
-          lines = connection.read_packet.join("\n")
-        rescue UnknownService, BadExit
-          # TODO
-        end
-        lines
-      end      
-    end
 
     # Get a configuration information for service
     #
     # services - Name of the service, or list of service names
     #
-    def config(services)
+    def config(services, raw=false)
       unless [String, Array].include?(services.class)
         raise ArgumentError, "Service(s) argument required"
       end
@@ -91,14 +77,14 @@ module Munin
         raise ArgumentError, "Service(s) argument required"
       end
       
-      key = 'config_' + Digest::MD5.hexdigest(names.to_s)
+      key = 'config_' + Digest::MD5.hexdigest(names.to_s) + "_#{raw}"
       
       cache(key) do
         names.each do |service|
           begin
             connection.send_data("config #{service}")
-            lines = connection.read_packet
-            results[service] = parse_config(lines)
+            lines = connection.read_packet 
+            results[service] = raw ? lines.join("\n") : parse_config(lines)
           rescue UnknownService, BadExit
             # TODO
           end
