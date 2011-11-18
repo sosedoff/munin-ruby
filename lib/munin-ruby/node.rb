@@ -38,21 +38,34 @@ module Munin
         parse_version(connection.read_line)
       end
     end
-    
-    # Get a list of all available metrics
+
+    # Get a list of all available nodes
     #
-    def list
-      cache 'list' do
-        connection.send_data("list")
+    def nodes
+      cache 'nodes' do 
+        connection.send_data("nodes")
         connection.read_line.split
       end
     end
     
+    # Get a list of all available metrics
+    #
+    def list(node = nil)
+      cache "list_#{node || 'default'}" do
+        connection.send_data("list #{node}")
+        if ( line = connection.read_line ) != "."
+          line.split
+        else
+          connection.read_line.split
+        end
+      end
+    end
+
     # Get a configuration information for service
     #
     # services - Name of the service, or list of service names
     #
-    def config(services)
+    def config(services, raw=false)
       unless [String, Array].include?(services.class)
         raise ArgumentError, "Service(s) argument required"
       end
@@ -64,14 +77,14 @@ module Munin
         raise ArgumentError, "Service(s) argument required"
       end
       
-      key = 'config_' + Digest::MD5.hexdigest(names.to_s)
+      key = 'config_' + Digest::MD5.hexdigest(names.to_s) + "_#{raw}"
       
       cache(key) do
         names.each do |service|
           begin
             connection.send_data("config #{service}")
-            lines = connection.read_packet
-            results[service] = parse_config(lines)
+            lines = connection.read_packet 
+            results[service] = raw ? lines.join("\n") : parse_config(lines)
           rescue UnknownService, BadExit
             # TODO
           end
