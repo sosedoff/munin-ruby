@@ -20,7 +20,7 @@ module Munin
     protected
     
     def cache_key(key)
-      "@cache_#{key.gsub('.','__')}".to_sym
+      "@cache_#{key.gsub(/[\.-]/,'__')}".to_sym
     end
       
     def cache_get(key)
