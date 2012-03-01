@@ -50,8 +50,8 @@ module Munin
     
     # Get a list of all available metrics
     #
-    def list(node = nil)
-      cache "list_#{node || 'default'}" do
+    def list(node = "")
+      cache "list_#{node.empty? ? 'default' : node}" do
         connection.send_data("list #{node}")
         if ( line = connection.read_line ) != "."
           line.split
