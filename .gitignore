@@ -30,6 +30,7 @@ auto-save-list
 coverage
 doc/
 lib/bundler/man
+lib/test.rb
 pkg
 pkg/*
 rdoc
@@ -39,4 +40,3 @@ test/version_tmp
 tmp
 tmtags
 tramp
-lib/test.rb
