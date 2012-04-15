@@ -7,5 +7,5 @@ def fixture_path
 end
 
 def fixture(file)
-  File.read(fixture_path + '/' + file)
+  File.read(File.join(fixture_path, file))
 end

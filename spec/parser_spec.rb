@@ -22,6 +22,6 @@ describe Munin::Parser do
     c['graph'].should be_a Hash
     c['graph']['args']['raw'].should == '--base 1024 -l 0 --upper-limit 16175665152'
     c['graph']['args']['parsed'].keys.should == %w(base l upper-limit)
-    c['metrics'].should be_an Hash
+    c['metrics'].should be_a Hash
   end
 end
