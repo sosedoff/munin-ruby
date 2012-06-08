@@ -63,7 +63,12 @@ module Munin
         if !@socket.nil? && @reconnect == false
           raise Munin::ConnectionError, "Not connected."
         else
-          open
+          begin
+            open
+          rescue => e
+            $stderr.puts "Failed to send data to #{@host} due to #{e}"
+            return false
+          end
         end
       end
       @socket.puts("#{str.strip}\n")
