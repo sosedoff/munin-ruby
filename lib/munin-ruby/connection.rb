@@ -1,14 +1,3 @@
-require 'socket'
-require 'rubygems'
-begin
-  require 'system_timer'
-  MyTimer = SystemTimer
-rescue LoadError
-  require 'timeout'
-  MyTimer = Timeout
-end
-
-
 module Munin
   class Connection
     include Munin::Parser
@@ -38,9 +27,8 @@ module Munin
     #
     def open
       begin
-
         begin
-          MyTimer.timeout_after(10) do
+          with_timeout do
             @socket = TCPSocket.new(@host, @port)
             @socket.sync = true
             welcome = @socket.gets
@@ -52,7 +40,6 @@ module Munin
         rescue Timeout::Error
           raise Munin::ConnectionError, "Timed out talking to #{@host}"
         end
-
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET => ex
         raise Munin::ConnectionError, ex.message
       rescue EOFError
@@ -80,32 +67,22 @@ module Munin
         if !@socket.nil? && @reconnect == false
           raise Munin::ConnectionError, "Not connected."
         else
-          begin
-            open
-          rescue => e
-            $stderr.puts "Failed to send data to #{@host} due to #{e}"
-            return false
-          end
+          open
         end
       end
 
       begin
-        MyTimer.timeout_after(10) do
-          @socket.puts("#{str.strip}\n")
-        end
+        with_timeout { @socket.puts("#{str.strip}\n") }
       rescue Timeout::Error
         raise Munin::ConnectionError, "Timed out on #{@host} trying to send."
       end
-
     end
     
     # Reads a single line from socket
     #
     def read_line
       begin
-        MyTimer.timeout_after(10) do
-          @socket.gets.to_s.strip
-        end
+        with_timeout { @socket.gets.to_s.strip }
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => ex
         raise Munin::ConnectionError, ex.message
       rescue Timeout::Error
@@ -117,19 +94,32 @@ module Munin
     #
     def read_packet
       begin
-        MyTimer.timeout_after(10) do
+        with_timeout do
           lines = []
           while(str = @socket.readline.to_s) do
             break if str.strip == '.'
             lines << str.strip
           end
+          parse_error(lines)
+          lines
         end
-        parse_error(lines)
-        lines
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError => ex
         raise Munin::ConnectionError, ex.message
       rescue Timeout::Error
         raise Munin::ConnectionError, "Timed out reading from #{@host}."
+      end
+    end
+
+    private
+
+    # Execute operation with timeout
+    # @param [Block] block Block to execute
+    def with_timeout(time=Munin::TIMEOUT_TIME)
+      raise ArgumentError, "Block required" if !block_given?
+      if Munin::TIMEOUT_CLASS.respond_to?(:timeout_after)
+        Munin::TIMEOUT_CLASS.timeout_after(time) { yield }
+      else
+        Munin::TIMEOUT_CLASS.timeout(time) { yield }
       end
     end
   end
