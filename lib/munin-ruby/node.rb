@@ -42,10 +42,14 @@ module Munin
     # Get a list of all available nodes
     #
     def nodes
-      cache 'nodes' do 
+      nodes = []
+      cache 'nodes' do
         connection.send_data("nodes")
-        connection.read_line.split
+        while ( ( line = connection.read_line ) != "." )
+          nodes << line
+        end
       end
+      nodes
     end
     
     # Get a list of all available metrics
