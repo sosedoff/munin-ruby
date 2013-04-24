@@ -48,8 +48,8 @@ module Munin
         while ( ( line = connection.read_line ) != "." )
           nodes << line
         end
+        nodes
       end
-      nodes
     end
     
     # Get a list of all available metrics
