@@ -1,20 +1,25 @@
 module Munin
   class Connection
     include Munin::Parser
-    
+
+    DEFAULT_OPTIONS = {:timeout => Munin::TIMEOUT_TIME}
+
     attr_reader :host, :port
     
     # Initialize a new connection to munin-node server
     #
-    # host - Server host (default: 127.0.0.1)
-    # port - Server port (default: 4949)
-    #
-    def initialize(host='127.0.0.1', port=4949, reconnect=true)
+    # host    - Server host (default: 127.0.0.1)
+    # port    - Server port (default: 4949)
+    # options - A hash containing different options
+    #    :timeout => A timeout in seconds to be used in the connection
+
+    def initialize(host='127.0.0.1', port=4949, reconnect=true, options = {})
       @host      = host
       @port      = port
       @socket    = nil
       @connected = false
       @reconnect = reconnect
+      @options    = DEFAULT_OPTIONS.merge(options)
     end
     
     # Returns true if socket is connected
@@ -114,7 +119,7 @@ module Munin
 
     # Execute operation with timeout
     # @param [Block] block Block to execute
-    def with_timeout(time=Munin::TIMEOUT_TIME)
+    def with_timeout(time=@options[:timeout])
       raise ArgumentError, "Block required" if !block_given?
       if Munin::TIMEOUT_CLASS.respond_to?(:timeout_after)
         Munin::TIMEOUT_CLASS.timeout_after(time) { yield }

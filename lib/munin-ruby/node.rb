@@ -4,20 +4,23 @@ module Munin
   class Node
     include Munin::Parser
     include Munin::Cache
-    
+
     attr_reader :connection
-    
+
+    DEFAULT_OPTIONS = {:timeout => Munin::TIMEOUT_TIME}
+
     # Initialize a new Node instance
     #
     # host      - Server host
     # port      - Server port
     # reconnect - Reconnect if connection was closed (default: true)
-    #
-    
-    def initialize(host='127.0.0.1', port=4949, reconnect=true)
-      @connection = Munin::Connection.new(host, port, reconnect)
+    # options   - A hash containing different options
+    #    :timeout => A timeout in seconds to be used in the connection
+    def initialize(host='127.0.0.1', port=4949, reconnect=true, options = {})
+      @options    = DEFAULT_OPTIONS.merge(options)
+      @connection = Munin::Connection.new(host, port, reconnect, @options)
     end
-    
+
     # Open service connection
     #
     def connect
@@ -42,9 +45,13 @@ module Munin
     # Get a list of all available nodes
     #
     def nodes
-      cache 'nodes' do 
+      nodes = []
+      cache 'nodes' do
         connection.send_data("nodes")
-        connection.read_line.split
+        while ( ( line = connection.read_line ) != "." )
+          nodes << line
+        end
+        nodes
       end
     end
     
