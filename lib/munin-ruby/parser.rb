@@ -9,7 +9,7 @@ module Munin
         raise Munin::InvalidResponse, "Invalid version response"
       end
     end
-    
+
     # Process response
     #
     def process_data(lines)  
@@ -21,7 +21,7 @@ module Munin
       end
       data
     end
-    
+
     # Parse 'config' request
     #
     def parse_config(data)
@@ -30,27 +30,30 @@ module Munin
         if l =~ /^graph_/
           key_name, value = l.scan(/^graph_([\w]+)\s(.*)/).flatten
           config['graph'][key_name] = value
-        elsif l =~ /^[a-z]+\./
-          matches = l.scan(/^([a-z\d\-\_]+)\.([a-z\d\-\_]+)\s(.*)/).flatten
+        # according to http://munin-monitoring.org/wiki/notes_on_datasource_names
+        elsif l =~ /^[a-zA-Z_][a-zA-Z\d_]*\./
+          # according to http://munin-monitoring.org/wiki/fieldnames the second one
+          # can only be [a-z]
+          matches = l.scan(/^([a-zA-Z_][a-zA-Z\d_]*)\.([a-z]+)\s(.*)/).flatten
           config['metrics'][matches[0]] ||= {}
           config['metrics'][matches[0]][matches[1]] = matches[2]
         end
       end
-      
+
       # Now, lets process the args hash
       if config['graph'].key?('args')
-        config['graph']['args'] = parse_config_args(config['graph']['args'])   
+        config['graph']['args'] = parse_config_args(config['graph']['args'])
       end
-      
+
       config
     end
-    
+
     # Parse 'fetch' request
     #
     def parse_fetch(data)
       process_data(data)
     end
-    
+
     # Detect error from output
     #
     def parse_error(lines)
@@ -61,7 +64,7 @@ module Munin
         end
       end
     end
-    
+
     # Parse configuration arguments
     #
     def parse_config_args(args)
